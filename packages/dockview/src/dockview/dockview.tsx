@@ -54,6 +54,7 @@ export interface IDockviewReactProps extends DockviewOptions {
     onReady: (event: DockviewReadyEvent) => void;
     onDidDrop?: (event: DockviewDidDropEvent) => void;
     onWillDrop?: (event: DockviewWillDropEvent) => void;
+    onDidSashChange?: () => void;
 }
 
 function extractCoreOptions(props: IDockviewReactProps): DockviewOptions {
@@ -215,6 +216,24 @@ export const DockviewReact = React.forwardRef(
                 disposable.dispose();
             };
         }, [props.onWillDrop]);
+
+        React.useEffect(() => {
+            if (!dockviewRef.current) {
+                return () => {
+                    // noop
+                };
+            }
+
+            const disposable = dockviewRef.current.onDidSashChange(() => {
+                if (props.onDidSashChange) {
+                    props.onDidSashChange();
+                }
+            });
+
+            return () => {
+                disposable.dispose();
+            };
+        }, [props.onDidSashChange]);
 
         React.useEffect(() => {
             if (!dockviewRef.current) {

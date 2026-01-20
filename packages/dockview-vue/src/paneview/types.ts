@@ -21,4 +21,5 @@ export interface IPaneviewVueProps extends PaneviewOptions {
 
 export type PaneviewVueEvents = {
     ready: [event: PaneviewReadyEvent];
+    didSashChange: [];
 };

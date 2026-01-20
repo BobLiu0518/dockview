@@ -10,6 +10,7 @@ export interface VueProps {
 
 export type VueEvents = {
     ready: [event: DockviewReadyEvent];
+    didSashChange: [];
 };
 
 export type IDockviewVueProps = DockviewOptions & VueProps;

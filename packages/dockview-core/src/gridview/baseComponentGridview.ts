@@ -66,6 +66,7 @@ export interface IBaseGrid<T extends IGridPanelView> extends IDisposable {
     readonly groups: T[];
     readonly onDidMaximizedChange: Event<MaximizedChanged<T>>;
     readonly onDidLayoutChange: Event<void>;
+    readonly onDidSashChange: Event<void>;
     getPanel(id: string): T | undefined;
     toJSON(): object;
     fromJSON(data: any): void;
@@ -106,6 +107,9 @@ export abstract class BaseGrid<T extends IGridPanelView>
     protected readonly _bufferOnDidLayoutChange = new AsapEvent();
     readonly onDidLayoutChange: Event<void> =
         this._bufferOnDidLayoutChange.onEvent;
+
+    protected readonly _onDidSashChange = new Emitter<void>();
+    readonly onDidSashChange: Event<void> = this._onDidSashChange.event;
 
     private readonly _onDidViewVisibilityChangeMicroTaskQueue = new AsapEvent();
     readonly onDidViewVisibilityChangeMicroTaskQueue =
@@ -202,6 +206,9 @@ export abstract class BaseGrid<T extends IGridPanelView>
             this.gridview.onDidChange(() => {
                 this._bufferOnDidLayoutChange.fire();
             }),
+            this.gridview.onDidSashChange(() => {
+                this._onDidSashChange.fire(undefined);
+            }),
             Event.any(
                 this.onDidAdd,
                 this.onDidRemove,
@@ -211,7 +218,8 @@ export abstract class BaseGrid<T extends IGridPanelView>
             }),
             this._onDidMaximizedChange,
             this._onDidViewVisibilityChangeMicroTaskQueue,
-            this._bufferOnDidLayoutChange
+            this._bufferOnDidLayoutChange,
+            this._onDidSashChange
         );
     }
 

@@ -64,6 +64,7 @@ export interface CommonApi<T = any> {
     readonly height: number;
     readonly width: number;
     readonly onDidLayoutChange: Event<void>;
+    readonly onDidSashChange: Event<void>;
     readonly onDidLayoutFromJSON: Event<void>;
     focus(): void;
     layout(width: number, height: number): void;
@@ -135,6 +136,13 @@ export class SplitviewApi implements CommonApi<SerializedSplitview> {
      */
     get onDidLayoutChange(): Event<void> {
         return this.component.onDidLayoutChange;
+    }
+
+    /**
+     * Invoked when a sash is moved.
+     */
+    get onDidSashChange(): Event<void> {
+        return this.component.onDidSashChange;
     }
 
     /**
@@ -273,6 +281,13 @@ export class PaneviewApi implements CommonApi<SerializedPaneview> {
      */
     get onDidLayoutChange(): Event<void> {
         return this.component.onDidLayoutChange;
+    }
+
+    /**
+     * Invoked when a sash is moved.
+     */
+    get onDidSashChange(): Event<void> {
+        return this.component.onDidSashChange;
     }
 
     /**
@@ -437,6 +452,13 @@ export class GridviewApi implements CommonApi<SerializedGridviewComponent> {
      */
     get onDidLayoutChange(): Event<void> {
         return this.component.onDidLayoutChange;
+    }
+
+    /**
+     * Invoked when a sash is moved.
+     */
+    get onDidSashChange(): Event<void> {
+        return this.component.onDidSashChange;
     }
 
     /**
@@ -689,6 +711,13 @@ export class DockviewApi implements CommonApi<SerializedDockview> {
      */
     get onDidLayoutChange(): Event<void> {
         return this.component.onDidLayoutChange;
+    }
+
+    /**
+     * Invoked when a sash is moved.
+     */
+    get onDidSashChange(): Event<void> {
+        return this.component.onDidSashChange;
     }
 
     /**

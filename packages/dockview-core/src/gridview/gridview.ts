@@ -14,7 +14,11 @@ import { LeafNode } from './leafNode';
 import { BranchNode } from './branchNode';
 import { Node } from './types';
 import { Emitter, Event } from '../events';
-import { IDisposable, MutableDisposable } from '../lifecycle';
+import {
+    IDisposable,
+    MutableDisposable,
+    CompositeDisposable,
+} from '../lifecycle';
 import { Position } from '../dnd/droptarget';
 
 function findLeaf(candiateNode: Node, last: boolean): LeafNode {
@@ -333,6 +337,9 @@ export class Gridview implements IDisposable {
     readonly onDidChange: Event<{ size?: number; orthogonalSize?: number }> =
         this._onDidChange.event;
 
+    private readonly _onDidSashChange = new Emitter<void>();
+    readonly onDidSashChange: Event<void> = this._onDidSashChange.event;
+
     private readonly _onDidViewVisibilityChange = new Emitter<void>();
     readonly onDidViewVisibilityChange = this._onDidViewVisibilityChange.event;
 
@@ -549,6 +556,7 @@ export class Gridview implements IDisposable {
     public dispose(): void {
         this.disposable.dispose();
         this._onDidChange.dispose();
+        this._onDidSashChange.dispose();
         this._onDidMaximizedNodeChange.dispose();
         this._onDidViewVisibilityChange.dispose();
 
@@ -676,9 +684,14 @@ export class Gridview implements IDisposable {
 
         this._root = root;
         this.element.appendChild(this._root.element);
-        this.disposable.value = this._root.onDidChange((e) => {
-            this._onDidChange.fire(e);
-        });
+        this.disposable.value = new CompositeDisposable(
+            this._root.onDidChange((e) => {
+                this._onDidChange.fire(e);
+            }),
+            this._root.onDidSashChange((e) => {
+                this._onDidSashChange.fire(e);
+            })
+        );
     }
 
     normalize(): void {

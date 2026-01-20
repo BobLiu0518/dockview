@@ -40,8 +40,9 @@ export interface SerializedSplitview {
     views: SerializedSplitviewPanel[];
 }
 
-export interface AddSplitviewComponentOptions<T extends Parameters = Parameters>
-    extends BaseComponentOptions<T> {
+export interface AddSplitviewComponentOptions<
+    T extends Parameters = Parameters,
+> extends BaseComponentOptions<T> {
     index?: number;
     minimumSize?: number;
     maximumSize?: number;
@@ -64,6 +65,7 @@ export interface ISplitviewComponent extends IDisposable {
     ): ISplitviewPanel;
     layout(width: number, height: number): void;
     onDidLayoutChange: Event<void>;
+    readonly onDidSashChange: Event<void>;
     toJSON(): SerializedSplitview;
     fromJSON(serializedSplitview: SerializedSplitview): void;
     focus(): void;
@@ -99,6 +101,9 @@ export class SplitviewComponent
     private readonly _onDidLayoutChange = new Emitter<void>();
     readonly onDidLayoutChange: Event<void> = this._onDidLayoutChange.event;
 
+    private readonly _onDidSashChange = new Emitter<void>();
+    readonly onDidSashChange: Event<void> = this._onDidSashChange.event;
+
     private readonly _classNames: Classnames;
 
     get panels(): SplitviewPanel[] {
@@ -130,6 +135,7 @@ export class SplitviewComponent
 
         this._splitviewChangeDisposable.value = new CompositeDisposable(
             this._splitview.onDidSashEnd(() => {
+                this._onDidSashChange.fire(undefined);
                 this._onDidLayoutChange.fire(undefined);
             }),
             this._splitview.onDidAddView((e) => this._onDidAddView.fire(e)),
@@ -178,7 +184,8 @@ export class SplitviewComponent
             this._onDidAddView,
             this._onDidLayoutfromJSON,
             this._onDidRemoveView,
-            this._onDidLayoutChange
+            this._onDidLayoutChange,
+            this._onDidSashChange
         );
     }
 

@@ -15,6 +15,9 @@ export class LeafNode implements IView {
     }>();
     readonly onDidChange: Event<{ size?: number; orthogonalSize?: number }> =
         this._onDidChange.event;
+
+    readonly onDidSashChange: Event<void> = Event.None;
+
     private _size: number;
     private _orthogonalSize: number;
     private readonly _disposable: IDisposable;

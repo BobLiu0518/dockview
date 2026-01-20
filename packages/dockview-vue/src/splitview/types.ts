@@ -20,4 +20,5 @@ export interface ISplitviewVueProps extends SplitviewOptions {
 
 export type SplitviewVueEvents = {
     ready: [event: SplitviewReadyEvent];
+    didSashChange: [];
 };
