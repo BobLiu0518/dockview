@@ -20,4 +20,5 @@ export interface IGridviewVueProps extends GridviewOptions {
 
 export type GridviewVueEvents = {
     ready: [event: GridviewReadyEvent];
+    didSashChange: [];
 };

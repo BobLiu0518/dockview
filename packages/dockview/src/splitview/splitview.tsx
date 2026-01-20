@@ -16,8 +16,9 @@ export interface SplitviewReadyEvent {
     api: SplitviewApi;
 }
 
-export interface ISplitviewPanelProps<T extends { [index: string]: any } = any>
-    extends PanelParameters<T> {
+export interface ISplitviewPanelProps<
+    T extends { [index: string]: any } = any,
+> extends PanelParameters<T> {
     api: SplitviewPanelApi;
     containerApi: SplitviewApi;
 }
@@ -25,6 +26,7 @@ export interface ISplitviewPanelProps<T extends { [index: string]: any } = any>
 export interface ISplitviewReactProps extends SplitviewOptions {
     onReady: (event: SplitviewReadyEvent) => void;
     components: Record<string, React.FunctionComponent<ISplitviewPanelProps>>;
+    onDidSashChange?: () => void;
 }
 
 function extractCoreOptions(props: ISplitviewReactProps): SplitviewOptions {
@@ -109,6 +111,24 @@ export const SplitviewReact = React.forwardRef(
                 api.dispose();
             };
         }, []);
+
+        React.useEffect(() => {
+            if (!splitviewRef.current) {
+                return () => {
+                    // noop
+                };
+            }
+
+            const disposable = splitviewRef.current.onDidSashChange(() => {
+                if (props.onDidSashChange) {
+                    props.onDidSashChange();
+                }
+            });
+
+            return () => {
+                disposable.dispose();
+            };
+        }, [props.onDidSashChange]);
 
         React.useEffect(() => {
             if (!splitviewRef.current) {

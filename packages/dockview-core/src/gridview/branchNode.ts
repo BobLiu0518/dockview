@@ -33,6 +33,9 @@ export class BranchNode extends CompositeDisposable implements IView {
     readonly onDidChange: Event<{ size?: number; orthogonalSize?: number }> =
         this._onDidChange.event;
 
+    private readonly _onDidSashChange = new Emitter<void>();
+    readonly onDidSashChange: Event<void> = this._onDidSashChange.event;
+
     private readonly _onDidVisibilityChange = new Emitter<{
         visible: boolean;
     }>();
@@ -211,8 +214,10 @@ export class BranchNode extends CompositeDisposable implements IView {
 
         this.addDisposables(
             this._onDidChange,
+            this._onDidSashChange,
             this._onDidVisibilityChange,
             this.splitview.onDidSashEnd(() => {
+                this._onDidSashChange.fire(undefined);
                 this._onDidChange.fire({});
             })
         );
@@ -346,6 +351,13 @@ export class BranchNode extends CompositeDisposable implements IView {
         this._childrenDisposable.dispose();
 
         this._childrenDisposable = new CompositeDisposable(
+            Event.any(
+                ...this.children
+                    .filter((c): c is BranchNode => c instanceof BranchNode)
+                    .map((c) => c.onDidSashChange)
+            )((e) => {
+                this._onDidSashChange.fire(undefined);
+            }),
             Event.any(...this.children.map((c) => c.onDidChange))((e) => {
                 /**
                  * indicate a change has occured to allows any re-rendering but don't bubble

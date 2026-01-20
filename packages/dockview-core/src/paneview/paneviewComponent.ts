@@ -113,6 +113,7 @@ export interface IPaneviewComponent extends IDisposable {
     readonly onDidRemoveView: Event<PaneviewPanel>;
     readonly onDidDrop: Event<PaneviewDidDropEvent>;
     readonly onDidLayoutChange: Event<void>;
+    readonly onDidSashChange: Event<void>;
     readonly onDidLayoutFromJSON: Event<void>;
     readonly onUnhandledDragOverEvent: Event<PaneviewDndOverlayEvent>;
     addPanel<T extends object = Parameters>(
@@ -143,6 +144,9 @@ export class PaneviewComponent extends Resizable implements IPaneviewComponent {
     private readonly _onDidLayoutChange = new Emitter<void>();
     readonly onDidLayoutChange: Event<void> = this._onDidLayoutChange.event;
 
+    private readonly _onDidSashChange = new Emitter<void>();
+    readonly onDidSashChange: Event<void> = this._onDidSashChange.event;
+
     private readonly _onDidDrop = new Emitter<PaneviewDidDropEvent>();
     readonly onDidDrop: Event<PaneviewDidDropEvent> = this._onDidDrop.event;
 
@@ -171,6 +175,9 @@ export class PaneviewComponent extends Resizable implements IPaneviewComponent {
         this._paneview = value;
 
         this._disposable.value = new CompositeDisposable(
+            this._paneview.onDidSashChange(() => {
+                this._onDidSashChange.fire(undefined);
+            }),
             this._paneview.onDidChange(() => {
                 this._onDidLayoutChange.fire(undefined);
             }),
@@ -234,7 +241,16 @@ export class PaneviewComponent extends Resizable implements IPaneviewComponent {
             orientation: Orientation.VERTICAL,
         });
 
-        this.addDisposables(this._disposable);
+        this.addDisposables(
+            this._disposable,
+            this._onDidAddView,
+            this._onDidRemoveView,
+            this._onDidLayoutfromJSON,
+            this._onDidLayoutChange,
+            this._onDidSashChange,
+            this._onDidDrop,
+            this._onUnhandledDragOverEvent
+        );
     }
 
     setVisible(panel: PaneviewPanel, visible: boolean): void {

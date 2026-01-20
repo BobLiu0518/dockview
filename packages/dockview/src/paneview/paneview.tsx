@@ -17,8 +17,9 @@ export interface PaneviewReadyEvent {
     api: PaneviewApi;
 }
 
-export interface IPaneviewPanelProps<T extends { [index: string]: any } = any>
-    extends PanelParameters<T> {
+export interface IPaneviewPanelProps<
+    T extends { [index: string]: any } = any,
+> extends PanelParameters<T> {
     api: PaneviewPanelApi;
     containerApi: PaneviewApi;
     title: string;
@@ -32,6 +33,7 @@ export interface IPaneviewReactProps extends PaneviewOptions {
         React.FunctionComponent<IPaneviewPanelProps>
     >;
     onDidDrop?(event: PaneviewDropEvent): void;
+    onDidSashChange?: () => void;
 }
 
 function extractCoreOptions(props: IPaneviewReactProps): PaneviewOptions {
@@ -175,6 +177,24 @@ export const PaneviewReact = React.forwardRef(
                 disposable.dispose();
             };
         }, [props.onDidDrop]);
+
+        React.useEffect(() => {
+            if (!paneviewRef.current) {
+                return () => {
+                    // noop
+                };
+            }
+
+            const disposable = paneviewRef.current.onDidSashChange(() => {
+                if (props.onDidSashChange) {
+                    props.onDidSashChange();
+                }
+            });
+
+            return () => {
+                disposable.dispose();
+            };
+        }, [props.onDidSashChange]);
 
         return (
             <div style={{ height: '100%', width: '100%' }} ref={domRef}>

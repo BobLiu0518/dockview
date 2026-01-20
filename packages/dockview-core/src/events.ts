@@ -9,6 +9,12 @@ export interface EmitterOptions {
 }
 
 export namespace Event {
+    export const None: Event<any> = () => ({
+        dispose: () => {
+            // noop
+        },
+    });
+
     export const any = <T>(...children: Event<T>[]): Event<T> => {
         return (listener: (e: T) => void) => {
             const disposables = children.map((child) => child(listener));

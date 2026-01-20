@@ -16,8 +16,9 @@ export interface GridviewReadyEvent {
     api: GridviewApi;
 }
 
-export interface IGridviewPanelProps<T extends { [index: string]: any } = any>
-    extends PanelParameters<T> {
+export interface IGridviewPanelProps<
+    T extends { [index: string]: any } = any,
+> extends PanelParameters<T> {
     api: GridviewPanelApi;
     containerApi: GridviewApi;
 }
@@ -25,6 +26,7 @@ export interface IGridviewPanelProps<T extends { [index: string]: any } = any>
 export interface IGridviewReactProps extends GridviewOptions {
     onReady: (event: GridviewReadyEvent) => void;
     components: Record<string, React.FunctionComponent<IGridviewPanelProps>>;
+    onDidSashChange?: () => void;
 }
 
 function extractCoreOptions(props: IGridviewReactProps): GridviewOptions {
@@ -109,6 +111,24 @@ export const GridviewReact = React.forwardRef(
                 api.dispose();
             };
         }, []);
+
+        React.useEffect(() => {
+            if (!gridviewRef.current) {
+                return () => {
+                    // noop
+                };
+            }
+
+            const disposable = gridviewRef.current.onDidSashChange(() => {
+                if (props.onDidSashChange) {
+                    props.onDidSashChange();
+                }
+            });
+
+            return () => {
+                disposable.dispose();
+            };
+        }, [props.onDidSashChange]);
 
         React.useEffect(() => {
             if (!gridviewRef.current) {

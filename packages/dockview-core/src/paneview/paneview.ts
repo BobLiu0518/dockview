@@ -25,6 +25,9 @@ export class Paneview extends CompositeDisposable implements IDisposable {
     private readonly _onDidChange = new Emitter<void>();
     readonly onDidChange: Event<void> = this._onDidChange.event;
 
+    private readonly _onDidSashChange = new Emitter<void>();
+    readonly onDidSashChange: Event<void> = this._onDidSashChange.event;
+
     get onDidAddView(): Event<PaneviewPanel> {
         return <Event<PaneviewPanel>>this.splitview.onDidAddView;
     }
@@ -96,7 +99,9 @@ export class Paneview extends CompositeDisposable implements IDisposable {
 
         this.addDisposables(
             this._onDidChange,
+            this._onDidSashChange,
             this.splitview.onDidSashEnd(() => {
+                this._onDidSashChange.fire(undefined);
                 this._onDidChange.fire(undefined);
             }),
             this.splitview.onDidAddView(() => {
